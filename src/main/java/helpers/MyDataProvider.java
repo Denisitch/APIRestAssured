@@ -23,4 +23,9 @@ public class MyDataProvider {
     public Object[][] listResources() {
         return new Object[][]{{"/unknown", 200}};
     }
+
+    @DataProvider(name = "countTags")
+    public Object[][] countTags() {
+        return new Object[][]{{"https://gateway.autodns.com/", 200, 15}};
+    }
 }
