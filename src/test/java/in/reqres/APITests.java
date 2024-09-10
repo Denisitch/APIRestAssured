@@ -12,8 +12,18 @@ import static java.util.Comparator.*;
 import static org.testng.Assert.assertEquals;
 import static specification.Specification.*;
 
+/**
+ * @author Осюшкин Денис
+ * Класс API тестов для проверки результатов запросов на сайте reqres.in
+ */
 public class APITests extends BaseTest {
 
+    /**
+     * @param pathSecondPage относительный путь
+     * @param expectedStatusCode ожидаемый код состояния
+     * @author Осюшкин Денис
+     * Тест для проверки уникальности имен аватаров пользователей
+     */
     @Test(
             description = "Получаем список пользователей со второй страницы и убеждаемся, " +
                     "что имена файлов аватаров пользователей уникальны",
@@ -40,6 +50,15 @@ public class APITests extends BaseTest {
         deleteSpec();
     }
 
+    /**
+     * @param email электронная почта
+     * @param password пароль
+     * @param pathRegister относительный путь
+     * @param expectedStatusCode ожидаемый код состояния
+     * @param expectedToken ожидаемый токен
+     * @author Осюшкин Денис
+     * Тест для проверки успешной авторизации
+     */
     @Test(
             description = "Проводим успешную авторизацию пользователя в системе",
             dataProvider = "successfulAuth",
@@ -71,6 +90,14 @@ public class APITests extends BaseTest {
         deleteSpec();
     }
 
+    /**
+     * @param email электронная почта
+     * @param pathRegister относительный путь
+     * @param expectedStatusCode ожидаемый код состояния
+     * @param expectedMessage ожидаемое сообщение об ошибке
+     * @author Осюшкин Денис
+     * Тест для проверки неудачной авторизации
+     */
     @Test(
             description = "Проводим неудачную авторизацию пользователя в системе",
             dataProvider = "errorAuth",
@@ -102,6 +129,12 @@ public class APITests extends BaseTest {
         deleteSpec();
     }
 
+    /**
+     * @param pathListResources относительный путь
+     * @param expectedStatusCode ожидаемый код состояния
+     * @author Осюшкин Денис
+     * Тест для проверки сортировки данных
+     */
     @Test(
             description = "Получаем список ресурсов и убеждаемся, что возвращаемые данные отсортированы по годам",
             dataProvider = "listResources",

@@ -10,8 +10,16 @@ import java.util.List;
 
 import static org.testng.Assert.*;
 
+/**
+ * @author Осюшкин Денис
+ * Класс модульных тестов
+ */
 public class UnitTests {
 
+    /**
+     * @author Осюшкин Денис
+     * Тест, проверяющий уникальность списка
+     */
     @Test
     public void testForUniqueDataPassed() {
         List<String> currentData = new ArrayList<>();
@@ -28,6 +36,10 @@ public class UnitTests {
                 "Строки в списке не уникальны");
     }
 
+    /**
+     * @author Осюшкин Денис
+     * Тест, проверяющий не уникальность списка
+     */
     @Test
     public void testForUniqueDataFailed() {
         List<String> currentData = new ArrayList<>();
@@ -44,6 +56,10 @@ public class UnitTests {
                 "Строки в списке уникальны");
     }
 
+    /**
+     * @author Осюшкин Денис
+     * Тест, проверяющий отсортированость списка
+     */
     @Test
     public void testForSortedDataPassed() {
         List<Integer> currentData = new ArrayList<>();
@@ -60,6 +76,10 @@ public class UnitTests {
                 "Строки в списке не отсортированы");
     }
 
+    /**
+     * @author Осюшкин Денис
+     * Тест, проверяющий не отсортированость списка
+     */
     @Test
     public void testForSortedDataFailed() {
         List<Integer> currentData = new ArrayList<>();
@@ -75,6 +95,10 @@ public class UnitTests {
         assertNotSame(currentData, uniqueData, "Строки в списке отсортированы");
     }
 
+    /**
+     * @author Осюшкин Денис
+     * Тест, проверяющий парсинг XML
+     */
     @Test
     public void testForXMLParse() {
         String xml =
