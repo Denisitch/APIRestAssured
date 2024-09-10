@@ -1,7 +1,12 @@
 package com.autodns.gateway;
 
 import helpers.MyDataProvider;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.given;
@@ -19,11 +24,13 @@ public class APITest {
                 .when()
                 .get(url)
                 .then()
+                .contentType(ContentType.XML)
                 .log().all()
                 .statusCode(expectedStatusCode)
                 .extract().response();
 
-        int actualCountTags = response.htmlPath().getList("**.findAll { it.name() != null }").size();
+        Document parse = Jsoup.parse(response.asString(), "", Parser.xmlParser());
+        int actualCountTags = parse.select("**").size();
 
         assertEquals(actualCountTags, expectedCountTags,
                 "Ожидаемое количество тегов: %s. Действительное количество тегов: %s"
