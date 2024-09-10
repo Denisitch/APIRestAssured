@@ -2,16 +2,17 @@ package in.reqres;
 
 import data.*;
 import helpers.MyDataProvider;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static java.util.Comparator.*;
 import static org.testng.Assert.assertEquals;
+import static specification.Specification.*;
 
-public class APITests {
+public class APITests extends BaseTest {
 
     @Test(
             description = "Получаем список пользователей со второй страницы и убеждаемся, " +
@@ -19,19 +20,24 @@ public class APITests {
             dataProvider = "listUserSecondPage",
             dataProviderClass = MyDataProvider.class
     )
-    public void checkUserAvatarFileNamesAreUnique(String urlSecondPage) {
-        Resourse resourse = given()
+    public void checkUserAvatarFileNamesAreUnique(String pathSecondPage, int expectedStatusCode) {
+        installSpec(responseSpecification(expectedStatusCode));
+
+        ResourceUsers resource =
+                given()
                 .when()
-                .get(urlSecondPage)
+                        .get(pathSecondPage)
                 .then()
-                .log().all()
-                .statusCode(200)
-                .extract().body().as(Resourse.class);
-        List<DataUser> currentData = resourse.getData();
-        List<DataUser> uniqueData = resourse.getData().stream().distinct().toList();
+                        .extract().body().as(ResourceUsers.class);
+        List<DataUser> currentData = resource.getData();
+        List<DataUser> uniqueData = resource.getData().stream()
+                .distinct()
+                .toList();
 
         assertEquals(currentData.size(), uniqueData.size(),
-                "Имена файлов аватаров пользователей не уникальны");  // TODO переопределить assert
+                "Имена файлов аватаров пользователей не уникальны");
+
+        deleteSpec();
     }
 
     @Test(
@@ -39,22 +45,20 @@ public class APITests {
             dataProvider = "successfulAuth",
             dataProviderClass = MyDataProvider.class
     )
-    public void checkSuccessfulAuth(String email, String password, String urlRegister) {
-        Response response = given()
-                .contentType(ContentType.JSON)
-                .body(Auth.builder().email(email).password(password).build())
+    public void checkSuccessfulAuth(String email, String password, String pathRegister,
+                                    int expectedStatusCode, String expectedToken) {
+        installSpec(requestSpecification(), responseSpecification(expectedStatusCode));
+
+        Response response =
+                given()
+                        .body(Auth.builder().email(email).password(password).build())
                 .when()
-                .post(urlRegister)
+                        .post(pathRegister)
                 .then()
-                .log().all()
-                .statusCode(200)
-                .extract().response();
+                        .extract().response();
 
         int actualStatusCode = response.getStatusCode();
-        int expectedStatusCode = 200;
-
         String actualToken = response.as(ResponseAuth.class).getToken();
-        String expectedToken = "QpwL5tke4Pnpja7X4";
 
         assertEquals(actualStatusCode, expectedStatusCode,
                 "Ожидаемый код состояния: %s. Действительный код состояния: %s"
@@ -63,6 +67,8 @@ public class APITests {
         assertEquals(actualToken, expectedToken,
                 "Ожидаемый токен %s не совпадает с действительным токеном %s"
                         .formatted(actualToken, expectedToken));
+
+        deleteSpec();
     }
 
     @Test(
@@ -70,22 +76,20 @@ public class APITests {
             dataProvider = "errorAuth",
             dataProviderClass = MyDataProvider.class
     )
-    public void checkErrorAuth(String email, String urlRegister) {
-        Response response = given()
-                .contentType(ContentType.JSON)
-                .body(Auth.builder().email(email).build())
+    public void checkErrorAuth(String email, String pathRegister,
+                               int expectedStatusCode, String expectedMessage) {
+        installSpec(requestSpecification(), responseSpecification(expectedStatusCode));
+
+        Response response =
+                given()
+                        .body(Auth.builder().email(email).build())
                 .when()
-                .post(urlRegister)
+                        .post(pathRegister)
                 .then()
-                .log().all()
-                .statusCode(400)
-                .extract().response();
+                        .extract().response();
 
         int actualStatusCode = response.getStatusCode();
-        int expectedStatusCode = 400;
-
         String actualMessage = response.as(ResponseError.class).getError();
-        String expectedMessage = "Missing password";
 
         assertEquals(actualStatusCode, expectedStatusCode,
                 "Ожидаемый код состояния: %s. Действительный код состояния: %s"
@@ -94,5 +98,32 @@ public class APITests {
         assertEquals(actualMessage, expectedMessage,
                 "Ожидаемое сообщение об ошибке %s не совпадает с действительным сообщением об ошибке %s"
                         .formatted(actualMessage, expectedMessage));
+
+        deleteSpec();
+    }
+
+    @Test(
+            description = "Получаем список ресурсов и убеждаемся, что возвращаемые данные отсортированы по годам",
+            dataProvider = "listResources",
+            dataProviderClass = MyDataProvider.class
+    )
+    public void checkDataSortedByYears(String pathListResources, int expectedStatusCode) {
+        installSpec(responseSpecification(expectedStatusCode));
+
+        ResourceColor resourceColor =
+                given()
+                .when()
+                        .get(pathListResources)
+                .then()
+                        .extract().body().as(ResourceColor.class);
+
+        List<DataColor> actualDataColor = resourceColor.getData();
+        List<DataColor> sortedDataColor = resourceColor.getData().stream()
+                .sorted(comparing(DataColor::getYear)).toList();
+
+        assertEquals(actualDataColor, sortedDataColor,
+                "Возвращаемые данные не отсортированы по годам");
+
+        deleteSpec();
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Resourse {
+public class ResourceUsers {
 
     private Integer page;
 
